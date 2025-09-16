@@ -1,11 +1,11 @@
-import { getLocalStorage } from "./utils.mjs";
+import { getLocalStorage, setLocalStorage } from "./utils.mjs";
 
 function renderCartContents() {
-  let cartItems = getLocalStorage("so-cart");
+  let cartItems = getLocalStorage("so-cart") || [];
 
   // Always make sure cartItems is an array
   if (!Array.isArray(cartItems)) {
-    cartItems = cartItems ? [cartItems] : [];
+    cartItems = [cartItems];
   }
 
   const htmlItems = cartItems.map((item) => cartItemTemplate(item));
@@ -29,6 +29,18 @@ function cartItemTemplate(item) {
   </li>`;
 
   return newItem;
+}
+
+// Example function to add new products to cart
+export function addToCart(product) {
+  let cartItems = getLocalStorage("so-cart") || [];
+
+  if (!Array.isArray(cartItems)) {
+    cartItems = [cartItems];
+  }
+
+  cartItems.push(product);
+  setLocalStorage("so-cart", cartItems);
 }
 
 renderCartContents();

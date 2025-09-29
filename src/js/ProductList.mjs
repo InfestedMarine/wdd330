@@ -1,10 +1,10 @@
 import { renderListWithTemplate } from './utils.mjs';
 
-// Template function for product cards
 function productCardTemplate(product) {
+  // Use PrimaryMedium for product list images
   const imgUrl = product.Images?.PrimaryMedium || '/images/fallback.png';
   return `<li class="product-card">
-    <a href="product_pages/?product=${product.Id}">
+    <a href="../product_pages/?product=${product.Id}">
       <img src="${imgUrl}" alt="Image of ${product.Name}">
       <h3 class="card__brand">${product.Brand?.Name || ''}</h3>
       <h2 class="card__name">${product.Name || ''}</h2>
@@ -21,13 +21,17 @@ export default class ProductList {
   }
 
   async init() {
-    const list = await this.dataSource.getData(this.category);
-    this.renderList(list);
-    
+    try {
+      const list = await this.dataSource.getData(this.category);
+      console.log(`Fetched products for category "${this.category}":`, list);
+      this.renderList(list);
+    } catch (err) {
+      console.error('Error fetching product list:', err);
+      this.listElement.innerHTML = '<p>Failed to load products.</p>';
+    }
   }
-  
 
   renderList(list) {
-    renderListWithTemplate(productCardTemplate, this.listElement, list, "afterbegin", true);
+    renderListWithTemplate(productCardTemplate, this.listElement, list, 'afterbegin', true);
   }
 }

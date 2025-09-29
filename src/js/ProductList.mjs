@@ -4,7 +4,7 @@ function productCardTemplate(product) {
   // Use PrimaryMedium for product list images
   const imgUrl = product.Images?.PrimaryMedium || '/images/fallback.png';
   return `<li class="product-card">
-    <a href="../product_pages/?product=${product.Id}">
+    <a href="/product_pages/?product=${product.Id}">
       <img src="${imgUrl}" alt="Image of ${product.Name}">
       <h3 class="card__brand">${product.Brand?.Name || ''}</h3>
       <h2 class="card__name">${product.Name || ''}</h2>

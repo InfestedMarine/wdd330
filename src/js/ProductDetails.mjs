@@ -1,33 +1,36 @@
-import { setLocalStorage, getLocalStorage, qs } from './utils.mjs';
+import { setLocalStorage, getLocalStorage, qs, getParam } from './utils.mjs';
+import ProductData from './ProductData.mjs';
 
 export default class ProductDetails {
-  constructor(productId, dataSource) {
+  constructor(productId) {
     this.productId = productId;
-    this.dataSource = dataSource;
-    this.product = null; // better to start with null instead of {}
+    this.product = null;
+    this.dataSource = new ProductData();
   }
 
+  
+
   async init() {
-    // Fetch product details
+    // Fetch product details from API
     this.product = await this.dataSource.findProductById(this.productId);
 
-    // If no product found, show fallback and stop
+    // If no product found, show fallback
     if (!this.product) {
       console.error("No product found for ID:", this.productId);
       qs("main").innerHTML = `<p>Sorry, product not found.</p>`;
       return;
     }
 
-    // Render the product HTML
+    // Render product details
     this.renderProductDetails();
 
-    // Add click listener for Add to Cart (guarded with ?)
+    // Add click listener for Add to Cart
     qs('#addToCart')?.addEventListener('click', this.addProductToCart.bind(this));
   }
 
   addProductToCart() {
     let cart = getLocalStorage('so-cart') || [];
-    if (!Array.isArray(cart)) cart = []; // make sure it's an array
+    if (!Array.isArray(cart)) cart = [];
     cart.push(this.product);
     setLocalStorage('so-cart', cart);
     alert(`${this.product.Name || "Unknown product"} added to cart!`);
@@ -38,8 +41,8 @@ export default class ProductDetails {
       <section class="product-detail">
         <h3>${this.product.Brand?.Name || ''}</h3>
         <h2 class="divider">${this.product.Name || ''}</h2>
-        <img class="divider" src="${this.product.Image || ''}" alt="${this.product.Name || ''}" />
-        <p class="product-card__price">$${this.product.FinalPrice ?? ''}</p>
+        <img class="divider" src="${this.product.Images?.PrimaryLarge || '/images/fallback.png'}" alt="${this.product.Name || ''}" />
+        <p class="product-card__price">$${this.product.FinalPrice?.toFixed(2) || '0.00'}</p>
         <p class="product__color">${this.product.Colors?.[0]?.ColorName || ''}</p>
         <p class="product__description">${this.product.DescriptionHtmlSimple || ''}</p>
         <div class="product-detail__add">
@@ -49,3 +52,10 @@ export default class ProductDetails {
     `;
   }
 }
+
+const productId = getParam('product'); // get ID from URL query string
+console.log('Product ID:', productId);
+const productPage = new ProductDetails(productId);
+productPage.init();
+
+

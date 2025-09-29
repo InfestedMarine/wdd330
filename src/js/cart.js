@@ -19,20 +19,22 @@ function renderCartContents() {
 }
 
 function cartItemTemplate(item) {
+  const imgUrl = item.Images?.PrimaryMedium || '/images/fallback.png';
+  const colorName = item.Colors?.[0]?.ColorName || 'N/A';
+
   return `<li class='cart-card divider'>
     <a href='#' class='cart-card__image'>
-      <img src="${item.Image}" alt="${item.Name}" />
+      <img src="${imgUrl}" alt="${item.Name || 'Product'}" />
     </a>
     <a href="#">
-      <h2 class="card__name">${item.Name}</h2>
+      <h2 class="card__name">${item.Name || ''}</h2>
     </a>
-    <p class="cart-card__color">${item.Colors[0].ColorName}</p>
+    <p class="cart-card__color">${colorName}</p>
     <p class="cart-card__quantity">qty: 1</p>
-    <p class="cart-card__price">$${item.FinalPrice}</p>
+    <p class="cart-card__price">$${item.FinalPrice?.toFixed(2) || '0.00'}</p>
     <button class="cart-card__remove" data-id="${item.Id}">✖</button>
   </li>`;
 }
-
 function removeFromCart(e) {
   const id = e.currentTarget.dataset.id;
   let cartItems = getLocalStorage('so-cart') || [];

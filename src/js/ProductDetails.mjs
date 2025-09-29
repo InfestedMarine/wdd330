@@ -1,44 +1,61 @@
-import { setLocalStorage, getLocalStorage, qs } from './utils.mjs';
+import { setLocalStorage, getLocalStorage, qs, getParam } from './utils.mjs';
+import ProductData from './ProductData.mjs';
 
 export default class ProductDetails {
-  constructor(productId, dataSource) {
+  constructor(productId) {
     this.productId = productId;
-    this.dataSource = dataSource;
-    this.product = {};
+    this.product = null;
+    this.dataSource = new ProductData();
   }
 
+  
+
   async init() {
-    // Fetch product details
+    // Fetch product details from API
     this.product = await this.dataSource.findProductById(this.productId);
 
-    // Render the product HTML
+    // If no product found, show fallback
+    if (!this.product) {
+      console.error("No product found for ID:", this.productId);
+      qs("main").innerHTML = `<p>Sorry, product not found.</p>`;
+      return;
+    }
+
+    // Render product details
     this.renderProductDetails();
 
     // Add click listener for Add to Cart
-    qs('#addToCart').addEventListener('click', this.addProductToCart.bind(this));
+    qs('#addToCart')?.addEventListener('click', this.addProductToCart.bind(this));
   }
 
   addProductToCart() {
     let cart = getLocalStorage('so-cart') || [];
-    if (!Array.isArray(cart)) cart = []; // ensure array
+    if (!Array.isArray(cart)) cart = [];
     cart.push(this.product);
     setLocalStorage('so-cart', cart);
-    alert(`${this.product.Name} added to cart!`);
+    alert(`${this.product.Name || "Unknown product"} added to cart!`);
   }
 
   renderProductDetails() {
     qs('main').innerHTML = `
       <section class="product-detail">
         <h3>${this.product.Brand?.Name || ''}</h3>
-        <h2 class="divider">${this.product.Name}</h2>
-        <img class="divider" src="${this.product.Image}" alt="${this.product.Name}" />
-        <p class="product-card__price">$${this.product.FinalPrice}</p>
-        <p class="product__color">${this.product.Colors[0]?.ColorName || ''}</p>
-        <p class="product__description">${this.product.DescriptionHtmlSimple}</p>
+        <h2 class="divider">${this.product.Name || ''}</h2>
+        <img class="divider" src="${this.product.Images?.PrimaryLarge || '/images/fallback.png'}" alt="${this.product.Name || ''}" />
+        <p class="product-card__price">$${this.product.FinalPrice?.toFixed(2) || '0.00'}</p>
+        <p class="product__color">${this.product.Colors?.[0]?.ColorName || ''}</p>
+        <p class="product__description">${this.product.DescriptionHtmlSimple || ''}</p>
         <div class="product-detail__add">
-          <button id="addToCart" data-id="${this.product.Id}">Add to Cart</button>
+          <button id="addToCart" data-id="${this.product.Id || ''}">Add to Cart</button>
         </div>
       </section>
     `;
   }
 }
+
+const productId = getParam('product'); // get ID from URL query string
+console.log('Product ID:', productId);
+const productPage = new ProductDetails(productId);
+productPage.init();
+
+

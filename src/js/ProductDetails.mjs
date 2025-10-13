@@ -1,11 +1,11 @@
 import { setLocalStorage, getLocalStorage, qs, getParam } from './utils.mjs';
-import ProductData from './ProductData.mjs';
+import ExternalServices from './ExternalServices.mjs';
 
 export default class ProductDetails {
   constructor(productId) {
     this.productId = productId;
     this.product = null;
-    this.dataSource = new ProductData();
+    this.dataSource = new ExternalServices();
   }
 
   
@@ -31,10 +31,30 @@ export default class ProductDetails {
   addProductToCart() {
     let cart = getLocalStorage('so-cart') || [];
     if (!Array.isArray(cart)) cart = [];
-    cart.push(this.product);
-    setLocalStorage('so-cart', cart);
-    alert(`${this.product.Name || "Unknown product"} added to cart!`);
+    
+    // Normalize the product object before saving
+    const productToAdd = {
+    Id: this.product.Id,
+    Name: this.product.Name,
+    FinalPrice: parseFloat(this.product.FinalPrice) || parseFloat(this.product.ListPrice) || 0,
+    quantity: 1,
+    Brand: this.product.Brand?.Name || "Unknown Brand",
+    Image: this.product.Images?.PrimaryMedium || "/images/fallback.png",
+    Color: this.product.Colors?.[0]?.ColorName || "N/A",
+    Category: this.product.Category,
+  };
+
+  // Optional: check if item already in cart (increase quantity instead)
+  const existing = cart.find(item => item.Id === productToAdd.Id);
+  if (existing) {
+    existing.quantity += 1;
+  } else {
+    cart.push(productToAdd);
   }
+
+  setLocalStorage('so-cart', cart);
+  alert(`${productToAdd.Name} added to cart!`);
+}
 
   renderProductDetails() {
     qs('main').innerHTML = `

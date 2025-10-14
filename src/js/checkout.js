@@ -19,30 +19,32 @@ document.addEventListener("DOMContentLoaded", () => {
   const form = document.querySelector("#checkout-form");
   if (form) {
     form.addEventListener("submit", async (event) => {
-  
       event.preventDefault(); // always prevent default when using AJAX
 
       // Client-side HTML validation
-      if (!form.checkValidity()) {  
-        alertMessage("Please correct the highlighted fields before submitting.", true);
+      if (!form.checkValidity()) {
+        alertMessage(
+          "Please correct the highlighted fields before submitting.",
+          true,
+        );
         form.reportValidity(); // still highlights fields
         return; // stop submission
-            }
-             try {
-              // Attempt checkout
-              await checkout.checkout(form);
-               alertMessage("Order successfully placed!", true);
-               localStorage.removeItem("so-cart");
-               setTimeout(() => {
-                window.location.href = "/checkout/success.html";
-              }, 1500);
-            } catch (err) {
-              console.error("Checkout failed:", err);
-              const message = err.message || "Something went wrong during checkout.";
-              alertMessage(`Error: ${message}`, true);
-            }
-          });
-        }
+      }
+      try {
+        // Attempt checkout
+        await checkout.checkout(form);
+        alertMessage("Order successfully placed!", true);
+        localStorage.removeItem("so-cart");
+        setTimeout(() => {
+          window.location.href = "/checkout/success.html";
+        }, 1500);
+      } catch (err) {
+        console.error("Checkout failed:", err);
+        const message = err.message || "Something went wrong during checkout.";
+        alertMessage(`Error: ${message}`, true);
+      }
+    });
+  }
 
   loadHeaderFooter();
 });

@@ -62,11 +62,10 @@ function updateCartTotal() {
   const cartTotalSpan = document.querySelector("#cartTotal");
 
   if (cartItems.length > 0) {
-
     cartFooter.classList.remove("hide");
     const total = cartItems.reduce(
       (sum, item) => sum + (item.FinalPrice || 0) * (item.quantity || 1),
-      0
+      0,
     );
 
     // Update HTML

@@ -15,49 +15,49 @@
 
   <body>
     <header class="divider" id="main-header"></header>
+    
     <main class="divider">
       
-      <form id="checkout-form">
+      <form id="checkout-form">        
         <fieldset>
           <legend>Customer Information</legend>
           <label>First Name
-            <input type="text" name="fname" required />
+            <input type="text" name="fname" required pattern="[A-Za-z\s'-]{2,}" title="Please enter a valid first name." />
           </label>
           <label>Last Name
-            <input type="text" name="lname" required />
+            <input type="text" name="lname" required pattern="[A-Za-z\s'-]{2,}" title="Please enter a valid last name." />
           </label>
         </fieldset>
 
         <fieldset>
           <legend>Address</legend>
           <label>Street Address
-            <input type="text" name="street" required />
+            <input type="text" name="street" required pattern=".{5,}" title="Please enter a valid street address." />
           </label>
           <label>City
-            <input type="text" name="city" required />
+            <input type="text" name="city" required pattern="[A-Za-z\s'-]{2,}" title="Please enter a valid city name." />
           </label>
           <label>State
-            <input type="text" name="state" required />
+            <input type="text" name="state" required pattern="[A-Za-z]{2}" title="Enter 2-letter state code (e.g., NY)." />
           </label>
           <label>Zip Code
-            <input type="text" id="zip" name="zip" required />
+            <input type="text" id="zip" name="zip" required pattern="\d{5}" title="Enter a 5-digit zip code." />
           </label>
         </fieldset>
 
         <fieldset>
           <legend>Payment Information</legend>
           <label>Credit Card Number
-            <input type="text" name="cardNumber" value="1234123412341234" required />
+            <input type="text" name="cardNumber" required pattern="\d{13,16}" title="Enter 13-16 digit credit card number." />
           </label>
           <label>Expiration Date
-            <input type="text" name="expiration" value="12/30" required />
+            <input type="text" name="expiration" required pattern="(0[1-9]|1[0-2])\/\d{2}" title="Enter expiration as MM/YY." />
           </label>
           <label>Security Code
-            <input type="text" name="code" value="123" required />
+            <input type="text" name="code" required pattern="\d{3,4}" title="Enter 3 or 4 digit security code." />
           </label>
         </fieldset>
 
-        <!-- ✅ Moved totals section inside same form -->
         <section class="products">
           <h2>Review & Place your Order</h2>
           <p>Subtotal: $<span id="subtotal">0.00</span></p>

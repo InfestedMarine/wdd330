@@ -46,22 +46,30 @@ export default class CheckoutProcess {
   }
 
   async checkout(form) {
-    const formData = new FormData(form);
-    const orderData = {};
+  const formData = new FormData(form);
+  const orderData = {};
+  formData.forEach((value, key) => (orderData[key] = value));
 
-    formData.forEach((value, key) => (orderData[key] = value));
+  const totals = this.calculateOrderTotals();
+  orderData.orderDate = new Date().toISOString();
+  orderData.orderTotal = totals.orderTotal.toFixed(2);
+  orderData.tax = totals.tax.toFixed(2);
+  orderData.shipping = totals.shipping;
+  orderData.items = this.packageItems(this.cartItems);
 
-    const totals = this.calculateOrderTotals();
+  try {
+    const result = await new ExternalServices().checkout(orderData);
+    console.log('Checkout successful', result);
 
-    orderData.orderDate = new Date().toISOString();
-    orderData.orderTotal = totals.orderTotal.toFixed(2);
-    orderData.tax = totals.tax.toFixed(2);
-    orderData.shipping = totals.shipping;
-    orderData.items = this.packageItems(this.cartItems);
-
-    // Send to server via ExternalServices
-    const services = new ExternalServices();
-    const result = await services.checkout(orderData);
-    console.log(result);
+    // Happy path: success page + clear cart
+    localStorage.removeItem(this.key);
+    window.location.href = '/checkout/success.html';
+  } catch (err) {
+    console.error('Checkout error:', err);
+    // show user-friendly message
+    alertMessage(
+      typeof err.message === 'object' ? JSON.stringify(err.message) : err.message
+    );
   }
+}
 }

@@ -1,5 +1,4 @@
-// import call loadHeaderFooter
-import { loadHeaderFooter } from "./utils.mjs";
+import { loadHeaderFooter, alertMessage } from "./utils.mjs";
 import CheckoutProcess from "../js/CheckoutProcess.mjs";
 
 // Create a new CheckoutProcess instance
@@ -8,9 +7,7 @@ const checkout = new CheckoutProcess("so-cart", "#subtotal");
 // Initialize it (loads cart + displays subtotal)
 checkout.init();
 
-// ✅ Wait for the DOM to load before adding event listeners
 document.addEventListener("DOMContentLoaded", () => {
-  // When ZIP code field loses focus, recalculate totals
   const zipInput = document.querySelector("#zip");
   if (zipInput) {
     zipInput.addEventListener("blur", () => {
@@ -21,19 +18,31 @@ document.addEventListener("DOMContentLoaded", () => {
   // Handle checkout form submission
   const form = document.querySelector("#checkout-form");
   if (form) {
-    form.addEventListener("submit", (event) => {
-      // Let browser validation happen first
-      if (!form.checkValidity()) {
-        // Show native validation UI
-        form.reportValidity();
-        return;
-      }
+    form.addEventListener("submit", async (event) => {
+  
+      event.preventDefault(); // always prevent default when using AJAX
 
-      event.preventDefault(); // prevent normal submit
-      checkout.checkout(event.target); // call checkout function
-    });
-  }
+      // Client-side HTML validation
+      if (!form.checkValidity()) {  
+        alertMessage("Please correct the highlighted fields before submitting.", true);
+        form.reportValidity(); // still highlights fields
+        return; // stop submission
+            }
+             try {
+              // Attempt checkout
+              await checkout.checkout(form);
+               alertMessage("Order successfully placed!", true);
+               localStorage.removeItem("so-cart");
+               setTimeout(() => {
+                window.location.href = "/checkout/success.html";
+              }, 1500);
+            } catch (err) {
+              console.error("Checkout failed:", err);
+              const message = err.message || "Something went wrong during checkout.";
+              alertMessage(`Error: ${message}`, true);
+            }
+          });
+        }
 
-  // Load the site header & footer
   loadHeaderFooter();
 });

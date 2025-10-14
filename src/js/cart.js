@@ -42,16 +42,18 @@ function cartItemTemplate(item) {
 function removeFromCart(e) {
   const id = e.currentTarget.dataset.id;
   let cartItems = getLocalStorage("so-cart") || [];
+  if (!Array.isArray(cartItems)) cartItems = cartItems ? [cartItems] : [];
 
-  if (!Array.isArray(cartItems)) {
-    cartItems = cartItems ? [cartItems] : [];
-  }
-
-  // Remove all matching items with the same Id
-  const updatedCart = cartItems.filter((item) => item.Id !== id);
+  const updatedCart = cartItems.map((item) => {
+    if (item.Id === id) {
+      // Decrement quantity, but keep at least 0
+      return { ...item, quantity: item.quantity - 1 };
+    }
+    return item;
+  }).filter(item => item.quantity > 0); // Remove items with qty <= 0
 
   setLocalStorage("so-cart", updatedCart);
-  renderCartContents(); // re-render the updated cart + update total
+  renderCartContents();
 }
 
 function updateCartTotal() {

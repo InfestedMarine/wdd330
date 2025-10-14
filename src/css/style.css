@@ -287,7 +287,9 @@ footer {
   align-items: center;
   text-decoration: none;
   color: var(--dark-grey);
-  transition: transform 0.2s ease, color 0.2s ease;
+  transition:
+    transform 0.2s ease,
+    color 0.2s ease;
 }
 
 .category-nav a:hover {
@@ -305,4 +307,3 @@ footer {
   font-size: var(--large-font);
   font-weight: bold;
 }
-

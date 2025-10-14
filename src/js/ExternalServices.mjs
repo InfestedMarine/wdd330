@@ -1,15 +1,17 @@
 const baseURL = import.meta.env.VITE_SERVER_URL;
 
-function convertToJson(res) {
+async function convertToJson(res) {
+  const jsonResponse = await res.json(); 
   if (res.ok) {
-    return res.json();
+    return jsonResponse;
   } else {
-    throw new Error("Bad Response");
+    // throw custom object with server response
+    throw { name: 'servicesError', message: jsonResponse };
   }
 }
 
 
-export default class ProductData {
+export default class ExternalServices {
 
   async getData(category) {
     const response = await fetch(`${baseURL}products/search/${category}`);
@@ -39,5 +41,25 @@ export default class ProductData {
        return null;
       }
     }
+
+    async checkout(payload) {
+      const url = "https://wdd330-backend.onrender.com/checkout";
+      const options = {
+        method: "POST",    
+        headers: { "Content-Type": "application/json" },    
+        body: JSON.stringify(payload),
+      };
+      try {
+        const response = await fetch(url, options);
+        const data = await response.json();    
+        return data;
+      } catch (err) {
+        console.error("Checkout error:", err);
+        throw err;
+      }
+    }
+       
       
   }
+
+  
